@@ -1,0 +1,76 @@
+{
+    "name": "fridzema/laravel-validation-plus",
+    "description": "Non-blocking validation warnings for Laravel",
+    "keywords": [
+        "fridzema",
+        "laravel",
+        "validation",
+        "warnings",
+        "laravel-validation-plus"
+    ],
+    "homepage": "https://github.com/fridzema/laravel-validation-plus",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Robert Fridzema",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^8.2",
+        "spatie/laravel-package-tools": "^1.16",
+        "illuminate/contracts": "^11.0||^12.0"
+    },
+    "require-dev": {
+        "laravel/pint": "^1.14",
+        "larastan/larastan": "^3.0",
+        "nunomaduro/collision": "^8.8",
+        "orchestra/testbench": "^10.0||^9.0",
+        "pestphp/pest": "^4.0",
+        "pestphp/pest-plugin-arch": "^4.0",
+        "pestphp/pest-plugin-laravel": "^4.0",
+        "phpstan/extension-installer": "^1.4",
+        "phpstan/phpstan-deprecation-rules": "^2.0",
+        "phpstan/phpstan-phpunit": "^2.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Fridzema\\ValidationPlus\\": "src/"
+        },
+        "files": [
+            "src/helpers.php"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Fridzema\\ValidationPlus\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "post-autoload-dump": "@composer run prepare",
+        "prepare": "@php vendor/bin/testbench package:discover --ansi",
+        "analyse": "vendor/bin/phpstan analyse",
+        "test": "vendor/bin/pest",
+        "test-coverage": "vendor/bin/pest --coverage",
+        "format": "vendor/bin/pint"
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true,
+            "phpstan/extension-installer": true
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Fridzema\\ValidationPlus\\ValidationPlusServiceProvider"
+            ],
+            "aliases": {
+                "Warnings": "Fridzema\\ValidationPlus\\Facades\\Warnings"
+            }
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
