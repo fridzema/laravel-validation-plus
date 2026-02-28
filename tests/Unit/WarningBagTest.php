@@ -5,7 +5,7 @@ declare(strict_types=1);
 use Fridzema\ValidationPlus\WarningBag;
 
 it('can be instantiated empty', function (): void {
-    $bag = new WarningBag();
+    $bag = new WarningBag;
 
     expect($bag->isEmpty())->toBeTrue();
     expect($bag->any())->toBeFalse();
@@ -42,7 +42,7 @@ it('can get messages for a key', function (): void {
 });
 
 it('is an instance of MessageBag', function (): void {
-    $bag = new WarningBag();
+    $bag = new WarningBag;
 
     expect($bag)->toBeInstanceOf(\Illuminate\Support\MessageBag::class);
 });

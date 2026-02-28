@@ -17,7 +17,7 @@ final class WarningValidator
     public function validate(array $data, array $rules, array $messages = [], array $attributes = []): WarningBag
     {
         if ($rules === []) {
-            return new WarningBag();
+            return new WarningBag;
         }
 
         $validator = Validator::make($data, $rules, $messages, $attributes);
@@ -26,6 +26,6 @@ final class WarningValidator
             return new WarningBag($validator->errors()->getMessages());
         }
 
-        return new WarningBag();
+        return new WarningBag;
     }
 }

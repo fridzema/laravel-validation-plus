@@ -26,17 +26,17 @@ function createFormRequest(
 
         public function rules(): array
         {
-            return static::$testRules;
+            return self::$testRules;
         }
 
         public function warningRules(): array
         {
-            return static::$testWarningRules;
+            return self::$testWarningRules;
         }
 
         public function warningMessages(): array
         {
-            return static::$testWarningMessages;
+            return self::$testWarningMessages;
         }
 
         public function authorize(): bool

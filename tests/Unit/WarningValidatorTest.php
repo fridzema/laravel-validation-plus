@@ -6,7 +6,7 @@ use Fridzema\ValidationPlus\WarningBag;
 use Fridzema\ValidationPlus\WarningValidator;
 
 it('returns empty warning bag when no rules fail', function (): void {
-    $validator = new WarningValidator();
+    $validator = new WarningValidator;
 
     $result = $validator->validate(
         ['email' => 'test@example.com'],
@@ -18,7 +18,7 @@ it('returns empty warning bag when no rules fail', function (): void {
 });
 
 it('returns warning bag with messages when rules fail', function (): void {
-    $validator = new WarningValidator();
+    $validator = new WarningValidator;
 
     $result = $validator->validate(
         ['email' => 'not-an-email'],
@@ -31,7 +31,7 @@ it('returns warning bag with messages when rules fail', function (): void {
 });
 
 it('supports custom warning messages', function (): void {
-    $validator = new WarningValidator();
+    $validator = new WarningValidator;
 
     $result = $validator->validate(
         ['email' => 'not-an-email'],
@@ -43,7 +43,7 @@ it('supports custom warning messages', function (): void {
 });
 
 it('supports custom attribute names', function (): void {
-    $validator = new WarningValidator();
+    $validator = new WarningValidator;
 
     $result = $validator->validate(
         ['email_address' => 'not-an-email'],
@@ -56,7 +56,7 @@ it('supports custom attribute names', function (): void {
 });
 
 it('supports multiple rules per field', function (): void {
-    $validator = new WarningValidator();
+    $validator = new WarningValidator;
 
     $result = $validator->validate(
         ['name' => ''],
@@ -67,7 +67,7 @@ it('supports multiple rules per field', function (): void {
 });
 
 it('supports multiple fields', function (): void {
-    $validator = new WarningValidator();
+    $validator = new WarningValidator;
 
     $result = $validator->validate(
         ['email' => 'bad', 'name' => ''],
@@ -79,7 +79,7 @@ it('supports multiple fields', function (): void {
 });
 
 it('does not throw validation exception', function (): void {
-    $validator = new WarningValidator();
+    $validator = new WarningValidator;
 
     // This should NOT throw — warnings never throw
     $result = $validator->validate(

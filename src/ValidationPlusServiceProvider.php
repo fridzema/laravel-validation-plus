@@ -21,9 +21,9 @@ final class ValidationPlusServiceProvider extends PackageServiceProvider
 
     public function packageRegistered(): void
     {
-        $this->app->singleton(WarningBag::class, fn (): WarningBag => new WarningBag());
+        $this->app->singleton(WarningBag::class, fn (): WarningBag => new WarningBag);
 
-        $this->app->bind(WarningValidator::class, fn (): WarningValidator => new WarningValidator());
+        $this->app->bind(WarningValidator::class, fn (): WarningValidator => new WarningValidator);
     }
 
     public function packageBooted(): void
@@ -31,7 +31,7 @@ final class ValidationPlusServiceProvider extends PackageServiceProvider
         View::share('warnings', $this->app->make(WarningBag::class));
 
         /** @var \Illuminate\Routing\Router $router */
-        $router = $this->app['router'];
+        $router = $this->app->make('router');
         $router->aliasMiddleware('warnings', Middleware\ShareWarnings::class);
 
         $this->registerTestingMacros();

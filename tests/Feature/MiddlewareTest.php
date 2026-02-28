@@ -10,7 +10,7 @@ use Illuminate\Http\Response;
 
 it('passes through when no warnings exist', function (): void {
     $request = Request::create('/test', 'GET');
-    $middleware = new ShareWarnings();
+    $middleware = new ShareWarnings;
 
     $response = $middleware->handle($request, fn () => new Response('OK'));
 
@@ -23,7 +23,7 @@ it('adds header to json response when warnings exist', function (): void {
     $request = Request::create('/test', 'GET');
     $request->headers->set('Accept', 'application/json');
 
-    $middleware = new ShareWarnings();
+    $middleware = new ShareWarnings;
 
     $response = $middleware->handle(
         $request,
@@ -39,7 +39,7 @@ it('injects warnings into json response body', function (): void {
     $request = Request::create('/test', 'GET');
     $request->headers->set('Accept', 'application/json');
 
-    $middleware = new ShareWarnings();
+    $middleware = new ShareWarnings;
 
     $response = $middleware->handle(
         $request,
@@ -60,7 +60,7 @@ it('does not inject json when inject_json config is false', function (): void {
     $request = Request::create('/test', 'GET');
     $request->headers->set('Accept', 'application/json');
 
-    $middleware = new ShareWarnings();
+    $middleware = new ShareWarnings;
 
     $response = $middleware->handle(
         $request,
@@ -81,7 +81,7 @@ it('flashes warnings to session for web requests', function (): void {
     $request = Request::create('/test', 'GET');
     $request->setLaravelSession(app('session.store'));
 
-    $middleware = new ShareWarnings();
+    $middleware = new ShareWarnings;
 
     $middleware->handle($request, fn () => new Response('OK'));
 
@@ -96,7 +96,7 @@ it('does not modify response when warning bag is empty', function (): void {
     $request = Request::create('/test', 'GET');
     $request->headers->set('Accept', 'application/json');
 
-    $middleware = new ShareWarnings();
+    $middleware = new ShareWarnings;
 
     $response = $middleware->handle(
         $request,
