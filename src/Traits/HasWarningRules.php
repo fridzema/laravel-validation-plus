@@ -27,17 +27,21 @@ trait HasWarningRules
     }
 
     /**
-     * @return \Closure(\Illuminate\Contracts\Validation\Validator): void
+     * @return \Illuminate\Contracts\Validation\Validator
      */
-    public function after(): \Closure
+    protected function getValidatorInstance()
     {
-        return function (Validator $validator): void {
+        $validator = parent::getValidatorInstance();
+
+        $validator->after(function (Validator $validator): void {
             if ($validator->messages()->isNotEmpty()) {
                 return;
             }
 
             $this->evaluateWarningRules();
-        };
+        });
+
+        return $validator;
     }
 
     private function evaluateWarningRules(): void
