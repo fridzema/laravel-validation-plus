@@ -203,3 +203,18 @@ it('does not modify response when warning bag is empty', function (): void {
     $data = $response->getData(assoc: true);
     expect($data)->not->toHaveKey('warnings');
 });
+
+it('resolves a fresh WarningBag after scoped instances are forgotten (Octane safety)', function (): void {
+    $bag = app(WarningBag::class);
+    $bag->merge(['email' => ['Stale warning from previous request.']]);
+
+    expect($bag->isEmpty())->toBeFalse();
+
+    // Simulate Octane flushing scoped instances between requests
+    app()->forgetScopedInstances();
+
+    $freshBag = app(WarningBag::class);
+
+    expect($freshBag)->not->toBe($bag);
+    expect($freshBag->isEmpty())->toBeTrue();
+});

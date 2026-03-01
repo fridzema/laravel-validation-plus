@@ -21,14 +21,16 @@ final class ValidationPlusServiceProvider extends PackageServiceProvider
 
     public function packageRegistered(): void
     {
-        $this->app->singleton(WarningBag::class, fn (): WarningBag => new WarningBag);
+        $this->app->scoped(WarningBag::class, fn (): WarningBag => new WarningBag);
 
         $this->app->bind(WarningValidator::class, fn (): WarningValidator => new WarningValidator);
     }
 
     public function packageBooted(): void
     {
-        View::share('warnings', $this->app->make(WarningBag::class));
+        View::composer('*', function (\Illuminate\View\View $view): void {
+            $view->with('warnings', app(WarningBag::class));
+        });
 
         /** @var \Illuminate\Routing\Router $router */
         $router = $this->app->make('router');
