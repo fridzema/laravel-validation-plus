@@ -43,10 +43,12 @@ final class ShareWarnings
             $injectJson = config('validation-plus.inject_json', true);
 
             if ($injectJson && $response instanceof JsonResponse) {
-                /** @var array<string, mixed> $data */
                 $data = $response->getData(assoc: true);
-                $data['warnings'] = $messages;
-                $response->setData($data);
+
+                if (is_array($data)) {
+                    $data['warnings'] = $messages;
+                    $response->setData($data);
+                }
             }
         }
 

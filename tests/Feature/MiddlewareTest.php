@@ -133,6 +133,60 @@ it('includes warning data header on non-json responses when expecting json', fun
     expect($warningData['bio'])->toContain('Short bios get less engagement.');
 });
 
+it('handles scalar string json payload without crashing', function (): void {
+    app(WarningBag::class)->merge(['email' => ['Warning about email.']]);
+
+    $request = Request::create('/test', 'GET');
+    $request->headers->set('Accept', 'application/json');
+
+    $middleware = new ShareWarnings;
+
+    $response = $middleware->handle(
+        $request,
+        fn () => new JsonResponse('ok'),
+    );
+
+    expect($response->headers->get(config('validation-plus.header')))->toBe('true');
+    expect($response->headers->has('X-Validation-Warnings-Data'))->toBeTrue();
+    expect($response->getData(assoc: true))->toBe('ok');
+});
+
+it('handles scalar int json payload without crashing', function (): void {
+    app(WarningBag::class)->merge(['email' => ['Warning about email.']]);
+
+    $request = Request::create('/test', 'GET');
+    $request->headers->set('Accept', 'application/json');
+
+    $middleware = new ShareWarnings;
+
+    $response = $middleware->handle(
+        $request,
+        fn () => new JsonResponse(42),
+    );
+
+    expect($response->headers->get(config('validation-plus.header')))->toBe('true');
+    expect($response->getData(assoc: true))->toBe(42);
+});
+
+it('handles null json payload without crashing', function (): void {
+    app(WarningBag::class)->merge(['email' => ['Warning about email.']]);
+
+    $request = Request::create('/test', 'GET');
+    $request->headers->set('Accept', 'application/json');
+
+    $middleware = new ShareWarnings;
+
+    $response = $middleware->handle(
+        $request,
+        fn () => new JsonResponse(null),
+    );
+
+    // JsonResponse coerces null to [], so warnings ARE injected into the body
+    expect($response->headers->get(config('validation-plus.header')))->toBe('true');
+    expect($response->getData(assoc: true))->toBeArray()
+        ->toHaveKey('warnings');
+});
+
 it('does not modify response when warning bag is empty', function (): void {
     $request = Request::create('/test', 'GET');
     $request->headers->set('Accept', 'application/json');
