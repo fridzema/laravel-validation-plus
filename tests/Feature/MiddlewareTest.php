@@ -92,6 +92,47 @@ it('flashes warnings to session for web requests', function (): void {
     expect($flashed->has('name'))->toBeTrue();
 });
 
+it('includes warning data as json header for json requests', function (): void {
+    app(WarningBag::class)->merge(['name' => ['Short names may cause display issues.']]);
+
+    $request = Request::create('/test', 'GET');
+    $request->headers->set('Accept', 'application/json');
+
+    $middleware = new ShareWarnings;
+
+    $response = $middleware->handle(
+        $request,
+        fn () => new JsonResponse(['data' => 'test']),
+    );
+
+    expect($response->headers->has('X-Validation-Warnings-Data'))->toBeTrue();
+
+    $warningData = json_decode($response->headers->get('X-Validation-Warnings-Data'), true);
+    expect($warningData)->toHaveKey('name');
+    expect($warningData['name'])->toContain('Short names may cause display issues.');
+});
+
+it('includes warning data header on non-json responses when expecting json', function (): void {
+    app(WarningBag::class)->merge(['bio' => ['Short bios get less engagement.']]);
+
+    $request = Request::create('/test', 'GET');
+    $request->headers->set('Accept', 'application/json');
+
+    $middleware = new ShareWarnings;
+
+    // Simulate a 204 response (not a JsonResponse instance)
+    $response = $middleware->handle(
+        $request,
+        fn () => new Response('', 204),
+    );
+
+    expect($response->headers->has('X-Validation-Warnings'))->toBeTrue();
+    expect($response->headers->has('X-Validation-Warnings-Data'))->toBeTrue();
+
+    $warningData = json_decode($response->headers->get('X-Validation-Warnings-Data'), true);
+    expect($warningData['bio'])->toContain('Short bios get less engagement.');
+});
+
 it('does not modify response when warning bag is empty', function (): void {
     $request = Request::create('/test', 'GET');
     $request->headers->set('Accept', 'application/json');
