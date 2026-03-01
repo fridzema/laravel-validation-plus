@@ -86,19 +86,35 @@ final class ValidationPlusServiceProvider extends PackageServiceProvider
 
         TestResponse::macro('getWarningsFromResponse', function (): array {
             /** @var TestResponse $this */
-            // Check JSON response first
+            // 1. JSON body (most complete when inject_json=true)
             if ($this->headers->has('Content-Type') && str_contains((string) $this->headers->get('Content-Type'), 'json')) {
                 $data = $this->json();
-
-                return $data['warnings'] ?? [];
+                if (is_array($data) && isset($data['warnings'])) {
+                    return $data['warnings'];
+                }
             }
 
-            // Check session for web responses
-            $session = $this->getSession();
-            if ($session !== null && $session->has(config('validation-plus.session_key', 'warnings'))) {
-                $bag = $session->get(config('validation-plus.session_key', 'warnings'));
+            // 2. Warning data header (covers inject_json=false, 204s, scalar bodies)
+            /** @var string $headerName */
+            $headerName = config('validation-plus.header', 'X-Validation-Warnings');
+            $headerData = $this->headers->get($headerName.'-Data');
+            if ($headerData !== null) {
+                $decoded = json_decode($headerData, true);
+                if (is_array($decoded)) {
+                    return $decoded;
+                }
+            }
 
-                return $bag instanceof WarningBag ? $bag->getMessages() : [];
+            // 3. Session (web responses)
+            /** @var string $sessionKey */
+            $sessionKey = config('validation-plus.session_key', 'warnings');
+            if (method_exists($this, 'getSession')) {
+                $session = $this->getSession();
+                if ($session !== null && $session->has($sessionKey)) {
+                    $bag = $session->get($sessionKey);
+
+                    return $bag instanceof WarningBag ? $bag->getMessages() : [];
+                }
             }
 
             return [];

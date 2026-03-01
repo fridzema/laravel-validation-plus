@@ -6,14 +6,8 @@ parameters:
         - message: '#Call to an undefined method Illuminate\\Testing\\TestResponse.*::getWarningsFromResponse\(\)#'
           path: src/ValidationPlusServiceProvider.php
 
-        - message: '#Call to an undefined method Illuminate\\Testing\\TestResponse.*::getSession\(\)#'
-          path: src/ValidationPlusServiceProvider.php
-
         - message: '#PHPDoc tag @var for variable \$this contains generic class Illuminate\\Testing\\TestResponse but does not specify its types#'
           path: src/ValidationPlusServiceProvider.php
 
         - message: '#Anonymous function should return array but returns mixed#'
-          path: src/ValidationPlusServiceProvider.php
-
-        - message: '#Cannot access offset .warnings. on mixed#'
           path: src/ValidationPlusServiceProvider.php
