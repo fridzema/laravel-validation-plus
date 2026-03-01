@@ -2,6 +2,14 @@
 
 Non-blocking validation warnings for Laravel. Add advisory messages to your form requests that inform users without preventing submission.
 
+## How It Works
+
+Warnings are advisory messages that don't block form submission. Unlike validation errors (red, HTTP 422), warnings (amber) let the request through while informing users about potential issues.
+
+| Warnings — form submits successfully | Errors — form is blocked |
+|:---:|:---:|
+| ![Warnings](docs/screenshots/warnings.png) | ![Errors](docs/screenshots/errors.png) |
+
 ## Installation
 
 ```bash
@@ -117,6 +125,42 @@ When the `ShareWarnings` middleware is active and warnings exist, API responses 
     "warnings": {
         "name": ["Short names may cause display issues."]
     }
+}
+```
+
+### Precognition (Real-Time Validation)
+
+The package integrates with [Laravel Precognition](https://laravel.com/docs/precognition) for real-time per-field warnings as users type.
+
+| Real-time warnings | Real-time errors |
+|:---:|:---:|
+| ![Precognition Warnings](docs/screenshots/precognition-warnings.png) | ![Precognition Errors](docs/screenshots/precognition-errors.png) |
+
+Add the `HandlePrecognitiveRequests` middleware to your route:
+
+```php
+Route::post('/profile', StoreProfileAction::class)
+    ->middleware([HandlePrecognitiveRequests::class, 'warnings']);
+```
+
+Warning rules are automatically filtered by the `Precognition-Validate-Only` header, so only the field being validated is checked.
+
+Warnings are returned in the `X-Validation-Warnings-Data` response header as JSON:
+
+```javascript
+const response = await fetch('/profile', {
+    method: 'POST',
+    headers: {
+        'Precognition': 'true',
+        'Precognition-Validate-Only': 'name',
+    },
+    body: JSON.stringify(form),
+});
+
+if (response.status === 204) {
+    const warnings = JSON.parse(
+        response.headers.get('X-Validation-Warnings-Data') || '{}'
+    );
 }
 ```
 
