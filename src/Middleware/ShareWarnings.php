@@ -34,7 +34,10 @@ final class ShareWarnings
             /** @var string $headerName */
             $headerName = config('validation-plus.header', 'X-Validation-Warnings');
             $response->headers->set($headerName, 'true');
-            $response->headers->set($headerName.'-Data', (string) json_encode($warnings->getMessages()));
+
+            /** @var array<string, list<string>> $messages */
+            $messages = $warnings->getMessages();
+            $response->headers->set($headerName.'-Data', (string) json_encode($messages));
 
             /** @var bool $injectJson */
             $injectJson = config('validation-plus.inject_json', true);
@@ -42,7 +45,7 @@ final class ShareWarnings
             if ($injectJson && $response instanceof JsonResponse) {
                 /** @var array<string, mixed> $data */
                 $data = $response->getData(assoc: true);
-                $data['warnings'] = $warnings->getMessages();
+                $data['warnings'] = $messages;
                 $response->setData($data);
             }
         }

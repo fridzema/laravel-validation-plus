@@ -26,21 +26,18 @@ trait HasWarningRules
         return [];
     }
 
-    public function withValidator(Validator $validator): void
+    /**
+     * @return \Closure(\Illuminate\Contracts\Validation\Validator): void
+     */
+    public function after(): \Closure
     {
-        $validator->after(function (Validator $validator): void {
+        return function (Validator $validator): void {
             if ($validator->messages()->isNotEmpty()) {
                 return;
             }
 
             $this->evaluateWarningRules();
-        });
-    }
-
-    protected function passedValidation(): void
-    {
-        // Warnings are evaluated in the withValidator after callback
-        // so they run before Precognition's abort(204) hook.
+        };
     }
 
     private function evaluateWarningRules(): void
