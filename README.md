@@ -86,7 +86,7 @@ $warnings = $validator->validate(
     ['name.min' => 'Short names may cause display issues.'],
 );
 
-// Merge into the singleton bag
+// Merge into the scoped bag
 app(WarningBag::class)->merge($warnings->getMessages());
 ```
 
@@ -151,6 +151,8 @@ Warnings are returned in the `X-Validation-Warnings-Data` response header as JSO
 const response = await fetch('/profile', {
     method: 'POST',
     headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
         'Precognition': 'true',
         'Precognition-Validate-Only': 'name',
     },
@@ -167,7 +169,7 @@ if (response.status === 204) {
 ### Helper Function
 
 ```php
-$bag = warnings(); // returns the singleton WarningBag
+$bag = warnings(); // returns the scoped WarningBag
 ```
 
 ## Testing

@@ -181,10 +181,11 @@ it('handles null json payload without crashing', function (): void {
         fn () => new JsonResponse(null),
     );
 
-    // JsonResponse coerces null to [], so warnings ARE injected into the body
+    // JsonResponse coerces null to [] which is a list array — warnings go to header only
     expect($response->headers->get(config('validation-plus.header')))->toBe('true');
+    expect($response->headers->has('X-Validation-Warnings-Data'))->toBeTrue();
     expect($response->getData(assoc: true))->toBeArray()
-        ->toHaveKey('warnings');
+        ->not->toHaveKey('warnings');
 });
 
 it('does not modify response when warning bag is empty', function (): void {
@@ -202,6 +203,50 @@ it('does not modify response when warning bag is empty', function (): void {
 
     $data = $response->getData(assoc: true);
     expect($data)->not->toHaveKey('warnings');
+});
+
+it('does not mutate list array json responses into objects', function (): void {
+    app(WarningBag::class)->merge(['email' => ['Warning about email.']]);
+
+    $request = Request::create('/test', 'GET');
+    $request->headers->set('Accept', 'application/json');
+
+    $middleware = new ShareWarnings;
+
+    $response = $middleware->handle(
+        $request,
+        fn () => new JsonResponse([1, 2, 3]),
+    );
+
+    // List array must stay as a JSON array, not become {"0":1,"1":2,"2":3,"warnings":...}
+    expect($response->getContent())->toBe('[1,2,3]');
+    // Warnings should still be in the header
+    expect($response->headers->get(config('validation-plus.header')))->toBe('true');
+    expect($response->headers->has('X-Validation-Warnings-Data'))->toBeTrue();
+});
+
+it('merges with existing warnings key instead of overwriting', function (): void {
+    app(WarningBag::class)->merge(['name' => ['Name is short.']]);
+
+    $request = Request::create('/test', 'GET');
+    $request->headers->set('Accept', 'application/json');
+
+    $middleware = new ShareWarnings;
+
+    $response = $middleware->handle(
+        $request,
+        fn () => new JsonResponse([
+            'data' => 'test',
+            'warnings' => ['email' => ['Email looks suspicious.']],
+        ]),
+    );
+
+    $data = $response->getData(assoc: true);
+
+    // Original warnings key is preserved
+    expect($data['warnings']['email'])->toContain('Email looks suspicious.');
+    // New warnings are merged in
+    expect($data['warnings']['name'])->toContain('Name is short.');
 });
 
 it('resolves a fresh WarningBag after scoped instances are forgotten (Octane safety)', function (): void {
