@@ -45,7 +45,7 @@ final class ShareWarnings
             if ($injectJson && $response instanceof JsonResponse) {
                 $data = $response->getData(assoc: true);
 
-                if (is_array($data) && !array_is_list($data)) {
+                if (is_array($data) && ! array_is_list($data)) {
                     if (isset($data['warnings']) && is_array($data['warnings'])) {
                         $data['warnings'] = array_merge_recursive($data['warnings'], $messages);
                     } else {
