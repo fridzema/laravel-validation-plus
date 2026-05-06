@@ -62,6 +62,7 @@ final class ValidationPlusServiceProvider extends PackageServiceProvider
 
         TestResponse::macro('assertHasWarning', function (string $key, ?string $message = null): TestResponse {
             /** @var TestResponse $this */
+            /** @var array<string, list<string>> $warnings */
             $warnings = $this->getWarningsFromResponse();
 
             Assert::assertTrue(
@@ -82,6 +83,7 @@ final class ValidationPlusServiceProvider extends PackageServiceProvider
 
         TestResponse::macro('assertHasNoWarnings', function (?string $key = null): TestResponse {
             /** @var TestResponse $this */
+            /** @var array<string, list<string>> $warnings */
             $warnings = $this->getWarningsFromResponse();
 
             if ($key !== null) {
