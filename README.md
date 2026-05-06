@@ -2,6 +2,7 @@
 
 [![CI](https://github.com/fridzema/laravel-validation-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/fridzema/laravel-validation-plus/actions/workflows/ci.yml)
 [![Coverage](https://codecov.io/gh/fridzema/laravel-validation-plus/branch/main/graph/badge.svg)](https://codecov.io/gh/fridzema/laravel-validation-plus)
+[![PHPStan](https://img.shields.io/badge/PHPStan-max-brightgreen.svg)](https://phpstan.org)
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/fridzema/laravel-validation-plus.svg)](https://packagist.org/packages/fridzema/laravel-validation-plus)
 [![PHP Version](https://img.shields.io/packagist/php-v/fridzema/laravel-validation-plus.svg)](https://packagist.org/packages/fridzema/laravel-validation-plus)
 [![License](https://img.shields.io/packagist/l/fridzema/laravel-validation-plus.svg)](LICENSE.md)

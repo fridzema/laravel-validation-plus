@@ -12,13 +12,18 @@ composer install
 
 ## Running checks locally
 
-```bash
-composer test        # Pest test suite
-composer analyse     # PHPStan level 9
-composer format      # Pint code style
-```
+| Command | What it runs |
+|---|---|
+| `composer test` | Pest test suite (79 tests) |
+| `composer test-coverage` | Tests with coverage report |
+| `composer mutate` | Mutation tests via pest-plugin-mutate |
+| `composer analyse` | PHPStan level 10 + strict-rules |
+| `composer format` | Pint code style |
 
-All three must pass before opening a PR.
+All checks except `mutate` must pass before opening a PR. CI also runs:
+- Coverage gate (≥ 100%)
+- Mutation testing gate (≥ 75% MSI)
+- Security audit (`composer audit --no-dev`)
 
 ## Pull requests
 
