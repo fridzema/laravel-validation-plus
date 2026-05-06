@@ -8,6 +8,8 @@ on:
       - 'phpunit.xml.dist'
       - 'phpstan.neon.dist'
       - 'composer.json'
+      - 'README.md'
+      - 'CONTRIBUTING.md'
   pull_request:
     branches:
       - main
