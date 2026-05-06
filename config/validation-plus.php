@@ -19,10 +19,20 @@ return [
     |--------------------------------------------------------------------------
     |
     | When true, warnings are automatically merged into JSON response bodies
-    | under the "warnings" key when the ShareWarnings middleware is active.
+    | under the configured json_key when the ShareWarnings middleware is active.
     |
     */
     'inject_json' => true,
+
+    /*
+    |--------------------------------------------------------------------------
+    | JSON Response Key
+    |--------------------------------------------------------------------------
+    |
+    | The key used when injecting warnings into JSON response bodies.
+    |
+    */
+    'json_key' => 'warnings',
 
     /*
     |--------------------------------------------------------------------------

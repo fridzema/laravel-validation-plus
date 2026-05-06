@@ -47,3 +47,22 @@ it('is an instance of MessageBag', function (): void {
 
     expect($bag)->toBeInstanceOf(MessageBag::class);
 });
+
+it('can add and detect global warnings', function (): void {
+    $bag = new WarningBag;
+
+    expect($bag->hasGlobal())->toBeFalse();
+
+    $bag->addGlobal('Your account is almost full.');
+
+    expect($bag->hasGlobal())->toBeTrue();
+    expect($bag->get('__global__'))->toContain('Your account is almost full.');
+});
+
+it('addGlobal is chainable', function (): void {
+    $bag = new WarningBag;
+
+    $bag->addGlobal('First.')->addGlobal('Second.');
+
+    expect($bag->get('__global__'))->toHaveCount(2);
+});

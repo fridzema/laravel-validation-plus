@@ -96,6 +96,23 @@ it('can assert exact warnings bag shape', function (): void {
     $response->assertWarnings(['name' => ['Name too short for display.']]);
 });
 
+it('reads warnings from custom json_key in response body', function (): void {
+    config()->set('validation-plus.json_key', 'advisories');
+
+    Route::middleware([ShareWarnings::class])
+        ->post('/test-macros-custom-key', function (MacroTestFormRequest $request) {
+            return response()->json(['status' => 'ok']);
+        });
+
+    $response = $this->postJson('/test-macros-custom-key', [
+        'email' => 'test@test.com',
+        'name' => 'Jo',
+    ]);
+
+    $response->assertOk();
+    $response->assertHasWarning('name', 'Name too short for display.');
+});
+
 it('can assert empty warnings bag via assertWarnings', function (): void {
     $response = $this->postJson('/test-macros', [
         'email' => 'test@test.com',

@@ -264,6 +264,23 @@ it('uses custom header name from config', function (): void {
     expect($response->headers->has('X-Validation-Warnings'))->toBeFalse();
 });
 
+it('uses custom json_key from config for injection', function (): void {
+    config()->set('validation-plus.json_key', 'advisories');
+
+    app(WarningBag::class)->merge(['name' => ['Warning.']]);
+
+    $request = Request::create('/test', 'GET');
+    $request->headers->set('Accept', 'application/json');
+
+    $middleware = new ShareWarnings;
+    $response = $middleware->handle($request, fn () => new JsonResponse(['data' => 'ok']));
+
+    $data = $response->getData(assoc: true);
+
+    expect($data)->toHaveKey('advisories');
+    expect($data)->not->toHaveKey('warnings');
+});
+
 it('uses custom session key from config', function (): void {
     config()->set('validation-plus.session_key', 'my_warnings');
 

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Fridzema\ValidationPlus;
 
 use Illuminate\Routing\Router;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\View;
 use Illuminate\Testing\TestResponse;
 use PHPUnit\Framework\Assert;
@@ -38,7 +39,19 @@ final class ValidationPlusServiceProvider extends PackageServiceProvider
         $router = $this->app->make('router');
         $router->aliasMiddleware('warnings', Middleware\ShareWarnings::class);
 
+        $this->registerBladeDirectives();
         $this->registerTestingMacros();
+    }
+
+    private function registerBladeDirectives(): void
+    {
+        $class = addslashes(WarningBag::class);
+
+        Blade::directive('warning', function (string $expression) use ($class): string {
+            return "<?php foreach (app('{$class}')->get({$expression}) as \$message): ?>";
+        });
+
+        Blade::directive('endwarning', fn (): string => '<?php endforeach; ?>');
     }
 
     private function registerTestingMacros(): void
@@ -103,9 +116,11 @@ final class ValidationPlusServiceProvider extends PackageServiceProvider
             /** @var TestResponse $this */
             // 1. JSON body (most complete when inject_json=true)
             if ($this->headers->has('Content-Type') && str_contains((string) $this->headers->get('Content-Type'), 'json')) {
+                /** @var string $jsonKey */
+                $jsonKey = config('validation-plus.json_key', 'warnings');
                 $data = $this->json();
-                if (is_array($data) && isset($data['warnings'])) {
-                    return $data['warnings'];
+                if (is_array($data) && isset($data[$jsonKey])) {
+                    return $data[$jsonKey];
                 }
             }
 

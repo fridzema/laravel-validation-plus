@@ -46,10 +46,13 @@ final class ShareWarnings
                 $data = $response->getData(assoc: true);
 
                 if (is_array($data) && ! array_is_list($data)) {
-                    if (isset($data['warnings']) && is_array($data['warnings'])) {
-                        $data['warnings'] = array_merge_recursive($data['warnings'], $messages);
+                    /** @var string $jsonKey */
+                    $jsonKey = config('validation-plus.json_key', 'warnings');
+
+                    if (isset($data[$jsonKey]) && is_array($data[$jsonKey])) {
+                        $data[$jsonKey] = array_merge_recursive($data[$jsonKey], $messages);
                     } else {
-                        $data['warnings'] = $messages;
+                        $data[$jsonKey] = $messages;
                     }
                     $response->setData($data);
                 }

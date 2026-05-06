@@ -132,6 +132,14 @@ Or use the included component:
 <x-validation-plus::warnings />
 ```
 
+Or use the `@warning` directive (mirrors `@error`):
+
+```blade
+@warning('name')
+    <span class="text-amber-600">{{ $message }}</span>
+@endwarning
+```
+
 ### API Responses
 
 When the `ShareWarnings` middleware is active and warnings exist, API responses automatically get:
@@ -186,6 +194,23 @@ if (response.status === 204) {
 }
 ```
 
+### Global Warnings
+
+For advisory messages not tied to a specific field:
+
+```php
+warnings()->addGlobal('Your account is approaching its storage limit.');
+app(WarningBag::class)->addGlobal('Subscription expires in 3 days.');
+```
+
+Access them in Blade with the reserved `__global__` key:
+
+```blade
+@warning('__global__')
+    <div class="alert alert-info">{{ $message }}</div>
+@endwarning
+```
+
 ### Helper Function
 
 ```php
@@ -217,8 +242,11 @@ return [
     // HTTP header added to API responses when warnings exist
     'header' => 'X-Validation-Warnings',
 
-    // Merge warnings into JSON response body under "warnings" key
+    // Merge warnings into JSON response body under the json_key
     'inject_json' => true,
+
+    // JSON body key used when injecting warnings into API responses
+    'json_key' => 'warnings',
 
     // Session key for flashing warnings on web requests
     'session_key' => 'warnings',
