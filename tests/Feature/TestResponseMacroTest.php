@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Fridzema\ValidationPlus\Middleware\ShareWarnings;
 use Fridzema\ValidationPlus\Traits\HasWarningRules;
+use Fridzema\ValidationPlus\WarningBag;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Route;
 
@@ -94,6 +95,18 @@ it('can assert exact warnings bag shape', function (): void {
 
     $response->assertOk();
     $response->assertWarnings(['name' => ['Name too short for display.']]);
+});
+
+it('reads warnings from session for web responses', function (): void {
+    $sessionKey = config('validation-plus.session_key', 'warnings');
+    $bag = new WarningBag(['name' => ['Name too short.']]);
+
+    Route::get('/test-macros-session', fn () => response('OK'));
+
+    $response = $this->withSession([$sessionKey => $bag])
+        ->get('/test-macros-session');
+
+    $response->assertHasWarning('name', 'Name too short.');
 });
 
 it('reads warnings from custom json_key in response body', function (): void {

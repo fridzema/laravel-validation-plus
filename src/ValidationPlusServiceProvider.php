@@ -56,9 +56,9 @@ final class ValidationPlusServiceProvider extends PackageServiceProvider
 
     private function registerTestingMacros(): void
     {
-        if (! class_exists(TestResponse::class)) {
+        if (! class_exists(TestResponse::class)) { // @codeCoverageIgnoreStart
             return;
-        }
+        } // @codeCoverageIgnoreEnd
 
         TestResponse::macro('assertHasWarning', function (string $key, ?string $message = null): TestResponse {
             /** @var TestResponse $this */
@@ -138,13 +138,11 @@ final class ValidationPlusServiceProvider extends PackageServiceProvider
             // 3. Session (web responses)
             /** @var string $sessionKey */
             $sessionKey = config('validation-plus.session_key', 'warnings');
-            if (method_exists($this, 'getSession')) {
-                $session = $this->getSession();
-                if ($session !== null && $session->has($sessionKey)) {
-                    $bag = $session->get($sessionKey);
+            $session = app('session.store');
+            if ($session->isStarted() && $session->has($sessionKey)) {
+                $bag = $session->get($sessionKey);
 
-                    return $bag instanceof WarningBag ? $bag->getMessages() : [];
-                }
+                return $bag instanceof WarningBag ? $bag->getMessages() : [];
             }
 
             return [];
