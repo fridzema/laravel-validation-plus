@@ -1,6 +1,7 @@
 # Laravel Validation Plus
 
 [![CI](https://github.com/fridzema/laravel-validation-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/fridzema/laravel-validation-plus/actions/workflows/ci.yml)
+[![Coverage](https://codecov.io/gh/fridzema/laravel-validation-plus/branch/main/graph/badge.svg)](https://codecov.io/gh/fridzema/laravel-validation-plus)
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/fridzema/laravel-validation-plus.svg)](https://packagist.org/packages/fridzema/laravel-validation-plus)
 [![PHP Version](https://img.shields.io/packagist/php-v/fridzema/laravel-validation-plus.svg)](https://packagist.org/packages/fridzema/laravel-validation-plus)
 [![License](https://img.shields.io/packagist/l/fridzema/laravel-validation-plus.svg)](LICENSE.md)
@@ -192,6 +193,160 @@ if (response.status === 204) {
         response.headers.get('X-Validation-Warnings-Data') || '{}'
     );
 }
+```
+
+### Frontend Integration
+
+Warnings travel in two ways depending on your setup:
+
+| Request type | Warnings location |
+|---|---|
+| Standard API (`Accept: application/json`) | JSON body under `warnings` key |
+| Precognition (real-time, `Precognition: true`) | `X-Validation-Warnings-Data` header as JSON |
+
+#### Axios
+
+An interceptor that surfaces warnings on every response:
+
+```javascript
+axios.interceptors.response.use((response) => {
+    const header = response.headers['x-validation-warnings-data'];
+    response.warnings = header ? JSON.parse(header) : (response.data?.warnings ?? {});
+    return response;
+});
+
+// Usage
+const response = await axios.post('/profile', form);
+if (Object.keys(response.warnings).length) {
+    console.log(response.warnings); // { name: ['Short names may cause display issues.'] }
+}
+```
+
+#### Vue 3
+
+```javascript
+// composables/useWarnings.js
+import { ref } from 'vue';
+
+export function useWarnings() {
+    const warnings = ref({});
+
+    function syncFromResponse(response) {
+        const header = response.headers?.['x-validation-warnings-data'];
+        warnings.value = header ? JSON.parse(header) : (response.data?.warnings ?? {});
+    }
+
+    const forField = (field) => warnings.value[field] ?? [];
+    const hasWarning = (field) => forField(field).length > 0;
+    const clear = () => { warnings.value = {}; };
+
+    return { warnings, syncFromResponse, forField, hasWarning, clear };
+}
+```
+
+```vue
+<script setup>
+import axios from 'axios';
+import { reactive } from 'vue';
+import { useWarnings } from '@/composables/useWarnings';
+
+const form = reactive({ name: '' });
+const { warnings, syncFromResponse, forField } = useWarnings();
+
+async function submit() {
+    const response = await axios.post('/profile', form);
+    syncFromResponse(response);
+}
+</script>
+
+<template>
+    <form @submit.prevent="submit">
+        <input v-model="form.name" />
+        <p v-for="msg in forField('name')" class="text-amber-600">{{ msg }}</p>
+        <button type="submit">Save</button>
+    </form>
+</template>
+```
+
+#### React
+
+```javascript
+// hooks/useWarnings.js
+import { useState, useCallback } from 'react';
+
+export function useWarnings() {
+    const [warnings, setWarnings] = useState({});
+
+    const syncFromResponse = useCallback((response) => {
+        const header = response.headers?.['x-validation-warnings-data'];
+        setWarnings(header ? JSON.parse(header) : (response.data?.warnings ?? {}));
+    }, []);
+
+    const forField = (field) => warnings[field] ?? [];
+    const hasWarning = (field) => forField(field).length > 0;
+    const clear = () => setWarnings({});
+
+    return { warnings, syncFromResponse, forField, hasWarning, clear };
+}
+```
+
+```jsx
+import axios from 'axios';
+import { useState } from 'react';
+import { useWarnings } from './hooks/useWarnings';
+
+export function ProfileForm() {
+    const [name, setName] = useState('');
+    const { syncFromResponse, forField } = useWarnings();
+
+    async function handleSubmit(e) {
+        e.preventDefault();
+        const response = await axios.post('/profile', { name });
+        syncFromResponse(response);
+    }
+
+    return (
+        <form onSubmit={handleSubmit}>
+            <input value={name} onChange={(e) => setName(e.target.value)} />
+            {forField('name').map((msg, i) => (
+                <p key={i} className="text-amber-600">{msg}</p>
+            ))}
+            <button type="submit">Save</button>
+        </form>
+    );
+}
+```
+
+#### Alpine.js
+
+```html
+<div x-data="warningForm()">
+    <form @submit.prevent="submit">
+        <input x-model="form.name" />
+        <template x-for="msg in warnings.name ?? []">
+            <p class="text-amber-600" x-text="msg"></p>
+        </template>
+        <button type="submit">Save</button>
+    </form>
+</div>
+
+<script>
+function warningForm() {
+    return {
+        form: { name: '' },
+        warnings: {},
+        async submit() {
+            const response = await fetch('/profile', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                body: JSON.stringify(this.form),
+            });
+            const data = await response.json();
+            this.warnings = data.warnings ?? {};
+        },
+    };
+}
+</script>
 ```
 
 ### Global Warnings
