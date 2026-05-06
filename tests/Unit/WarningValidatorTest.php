@@ -78,6 +78,15 @@ it('supports multiple fields', function (): void {
     expect($result->has('name'))->toBeTrue();
 });
 
+it('returns empty bag immediately when rules array is empty', function (): void {
+    $validator = new WarningValidator;
+
+    $result = $validator->validate(['email' => 'bad'], []);
+
+    expect($result)->toBeInstanceOf(WarningBag::class);
+    expect($result->isEmpty())->toBeTrue();
+});
+
 it('does not throw validation exception', function (): void {
     $validator = new WarningValidator;
 

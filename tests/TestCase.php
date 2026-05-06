@@ -18,4 +18,10 @@ abstract class TestCase extends Orchestra
             ValidationPlusServiceProvider::class,
         ];
     }
+
+    protected function getEnvironmentSetUp($app): void
+    {
+        $app['config']->set('app.key', 'base64:'.base64_encode(str_repeat('x', 32)));
+        $app['config']->set('session.driver', 'array');
+    }
 }

@@ -34,6 +34,17 @@ it('has default empty warning messages', function (): void {
     expect($request->warningMessages())->toBe([]);
 });
 
+it('skips warning evaluation when warningRules is empty', function (): void {
+    $request = createFormRequest(
+        data: ['email' => 'test@test.com'],
+        rules: ['email' => 'required|email'],
+    );
+
+    $request->validateResolved();
+
+    expect(app(WarningBag::class)->isEmpty())->toBeTrue();
+});
+
 it('populates warning bag after validation passes', function (): void {
     $request = createFormRequest(
         data: ['email' => 'not-unique@test.com'],
