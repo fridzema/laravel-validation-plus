@@ -11,6 +11,7 @@ use Illuminate\Testing\TestResponse;
 use PHPUnit\Framework\Assert;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
+use Symfony\Component\HttpFoundation\Response;
 
 final class ValidationPlusServiceProvider extends PackageServiceProvider
 {
@@ -61,7 +62,7 @@ final class ValidationPlusServiceProvider extends PackageServiceProvider
         } // @codeCoverageIgnoreEnd
 
         TestResponse::macro('assertHasWarning', function (string $key, ?string $message = null): TestResponse {
-            /** @var TestResponse $this */
+            /** @var TestResponse<Response> $this */
             /** @var array<string, list<string>> $warnings */
             $warnings = $this->getWarningsFromResponse();
 
@@ -82,7 +83,7 @@ final class ValidationPlusServiceProvider extends PackageServiceProvider
         });
 
         TestResponse::macro('assertHasNoWarnings', function (?string $key = null): TestResponse {
-            /** @var TestResponse $this */
+            /** @var TestResponse<Response> $this */
             /** @var array<string, list<string>> $warnings */
             $warnings = $this->getWarningsFromResponse();
 
@@ -101,8 +102,9 @@ final class ValidationPlusServiceProvider extends PackageServiceProvider
             return $this;
         });
 
+        /** @param array<string, list<string>> $expected */
         TestResponse::macro('assertWarnings', function (array $expected): TestResponse {
-            /** @var TestResponse $this */
+            /** @var TestResponse<Response> $this */
             $actual = $this->getWarningsFromResponse();
 
             Assert::assertEquals(
@@ -114,15 +116,19 @@ final class ValidationPlusServiceProvider extends PackageServiceProvider
             return $this;
         });
 
+        /** @return array<string, list<string>> */
         TestResponse::macro('getWarningsFromResponse', function (): array {
-            /** @var TestResponse $this */
+            /** @var TestResponse<Response> $this */
             // 1. JSON body (most complete when inject_json=true)
             if ($this->headers->has('Content-Type') && str_contains((string) $this->headers->get('Content-Type'), 'json')) {
                 /** @var string $jsonKey */
                 $jsonKey = config('validation-plus.json_key', 'warnings');
                 $data = $this->json();
                 if (is_array($data) && isset($data[$jsonKey])) {
-                    return $data[$jsonKey];
+                    /** @var array<string, list<string>> $fieldWarnings */
+                    $fieldWarnings = $data[$jsonKey];
+
+                    return $fieldWarnings;
                 }
             }
 
