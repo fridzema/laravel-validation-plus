@@ -2,6 +2,18 @@
 
 All notable changes to `laravel-validation-plus` will be documented in this file.
 
+## 1.2.0 - 2026-05-06
+
+## [1.2.0](https://github.com/fridzema/laravel-validation-plus/compare/v1.1.0...v1.2.0) (2026-05-06)
+
+
+### Features
+
+* add [@warning](https://github.com/warning) directive, global warnings, and configurable json_key ([1f839b5](https://github.com/fridzema/laravel-validation-plus/commit/1f839b533db8fae9f9b9b0eb1af4952fd30ca6dd))
+
+
+
+
 ## 1.1.0 - 2026-05-06
 
 ## [1.1.0](https://github.com/fridzema/laravel-validation-plus/compare/v1.0.2...v1.1.0) (2026-05-06)
