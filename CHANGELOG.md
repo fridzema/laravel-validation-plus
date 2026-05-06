@@ -2,6 +2,18 @@
 
 All notable changes to `laravel-validation-plus` will be documented in this file.
 
+## 1.3.1 - 2026-05-06
+
+### [1.3.1](https://github.com/fridzema/laravel-validation-plus/compare/v1.3.0...v1.3.1) (2026-05-06)
+
+
+### Tests
+
+* close coverage gaps and enforce 95% threshold ([d5134e7](https://github.com/fridzema/laravel-validation-plus/commit/d5134e725eb305bedf6615a50ef1be3a4dd456f9))
+
+
+
+
 ## 1.3.0 - 2026-05-06
 
 ## [1.3.0](https://github.com/fridzema/laravel-validation-plus/compare/v1.2.0...v1.3.0) (2026-05-06)
