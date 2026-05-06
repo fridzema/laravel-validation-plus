@@ -2,6 +2,18 @@
 
 All notable changes to `laravel-validation-plus` will be documented in this file.
 
+## 1.3.0 - 2026-05-06
+
+## [1.3.0](https://github.com/fridzema/laravel-validation-plus/compare/v1.2.0...v1.3.0) (2026-05-06)
+
+
+### Features
+
+* add code coverage reporting and frontend integration docs ([819ac61](https://github.com/fridzema/laravel-validation-plus/commit/819ac617b9eec02c5b28617daf3efc668ed0070a))
+
+
+
+
 ## 1.2.0 - 2026-05-06
 
 ## [1.2.0](https://github.com/fridzema/laravel-validation-plus/compare/v1.1.0...v1.2.0) (2026-05-06)
