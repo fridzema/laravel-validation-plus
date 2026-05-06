@@ -62,6 +62,47 @@ it('does not populate warnings when warning rules pass', function (): void {
     expect($warningBag->isEmpty())->toBeTrue();
 });
 
+it('has default empty warning attributes', function (): void {
+    $request = new class extends FormRequest
+    {
+        use HasWarningRules;
+
+        public function rules(): array
+        {
+            return [];
+        }
+    };
+
+    expect($request->warningAttributes())->toBe([]);
+});
+
+it('supports custom warning attribute names via warningAttributes()', function (): void {
+    $request = createFormRequest(
+        data: ['user_name' => 'AB'],
+        rules: ['user_name' => 'required|string'],
+        warningRules: ['user_name' => 'min:3'],
+        warningAttributes: ['user_name' => 'display name'],
+    );
+
+    $request->validateResolved();
+
+    $warningBag = app(WarningBag::class);
+    expect($warningBag->first('user_name'))->toContain('display name');
+});
+
+it('supports dot-notation nested field warning rules', function (): void {
+    $request = createFormRequest(
+        data: ['profile' => ['name' => 'Jo']],
+        rules: ['profile.name' => 'required|string'],
+        warningRules: ['profile.name' => 'min:3'],
+    );
+
+    $request->validateResolved();
+
+    $warningBag = app(WarningBag::class);
+    expect($warningBag->has('profile.name'))->toBeTrue();
+});
+
 it('supports custom warning messages', function (): void {
     $request = createFormRequest(
         data: ['email' => 'not-unique@test.com'],

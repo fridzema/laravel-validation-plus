@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Fridzema\ValidationPlus;
 
+use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\View;
 use Illuminate\Testing\TestResponse;
+use PHPUnit\Framework\Assert;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 
@@ -23,7 +25,7 @@ final class ValidationPlusServiceProvider extends PackageServiceProvider
     {
         $this->app->scoped(WarningBag::class, fn (): WarningBag => new WarningBag);
 
-        $this->app->bind(WarningValidator::class, fn (): WarningValidator => new WarningValidator);
+        $this->app->singleton(WarningValidator::class, fn (): WarningValidator => new WarningValidator);
     }
 
     public function packageBooted(): void
@@ -32,7 +34,7 @@ final class ValidationPlusServiceProvider extends PackageServiceProvider
             $view->with('warnings', app(WarningBag::class));
         });
 
-        /** @var \Illuminate\Routing\Router $router */
+        /** @var Router $router */
         $router = $this->app->make('router');
         $router->aliasMiddleware('warnings', Middleware\ShareWarnings::class);
 
@@ -49,13 +51,13 @@ final class ValidationPlusServiceProvider extends PackageServiceProvider
             /** @var TestResponse $this */
             $warnings = $this->getWarningsFromResponse();
 
-            \PHPUnit\Framework\Assert::assertTrue(
+            Assert::assertTrue(
                 isset($warnings[$key]),
                 "Expected warning for key [{$key}] but none was found."
             );
 
             if ($message !== null) {
-                \PHPUnit\Framework\Assert::assertContains(
+                Assert::assertContains(
                     $message,
                     $warnings[$key],
                     "Expected warning message [{$message}] for key [{$key}] was not found."
@@ -70,16 +72,29 @@ final class ValidationPlusServiceProvider extends PackageServiceProvider
             $warnings = $this->getWarningsFromResponse();
 
             if ($key !== null) {
-                \PHPUnit\Framework\Assert::assertFalse(
+                Assert::assertFalse(
                     isset($warnings[$key]),
                     "Unexpected warning found for key [{$key}]."
                 );
             } else {
-                \PHPUnit\Framework\Assert::assertEmpty(
+                Assert::assertEmpty(
                     $warnings,
                     'Expected no warnings but found: '.json_encode($warnings)
                 );
             }
+
+            return $this;
+        });
+
+        TestResponse::macro('assertWarnings', function (array $expected): TestResponse {
+            /** @var TestResponse $this */
+            $actual = $this->getWarningsFromResponse();
+
+            Assert::assertEquals(
+                $expected,
+                $actual,
+                'Response warnings do not match expected. Got: '.json_encode($actual)
+            );
 
             return $this;
         });

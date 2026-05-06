@@ -1,14 +1,21 @@
 # Laravel Validation Plus
 
+[![CI](https://github.com/fridzema/laravel-validation-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/fridzema/laravel-validation-plus/actions/workflows/ci.yml)
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/fridzema/laravel-validation-plus.svg)](https://packagist.org/packages/fridzema/laravel-validation-plus)
+[![PHP Version](https://img.shields.io/packagist/php-v/fridzema/laravel-validation-plus.svg)](https://packagist.org/packages/fridzema/laravel-validation-plus)
+[![License](https://img.shields.io/packagist/l/fridzema/laravel-validation-plus.svg)](LICENSE.md)
+
 Non-blocking validation warnings for Laravel. Add advisory messages to your form requests that inform users without preventing submission.
 
 ## How It Works
 
 Warnings are advisory messages that don't block form submission. Unlike validation errors (red, HTTP 422), warnings (amber) let the request through while informing users about potential issues.
 
-| Warnings — form submits successfully | Errors — form is blocked |
-|:---:|:---:|
-| ![Warnings](docs/screenshots/warnings.png) | ![Errors](docs/screenshots/errors.png) |
+## Requirements
+
+| Package | PHP | Laravel |
+|---|---|---|
+| 1.x | ^8.3 | 11.x, 12.x |
 
 ## Installation
 
@@ -65,10 +72,23 @@ class StoreUserRequest extends FormRequest
             'name.min' => 'Short names may cause display issues.',
         ];
     }
+
+    public function warningAttributes(): array
+    {
+        return [
+            'name' => 'display name',
+        ];
+    }
 }
 ```
 
 Warning rules are evaluated **after** standard validation passes. If validation fails, warnings are never checked.
+
+| Method | Purpose | Default |
+|---|---|---|
+| `warningRules()` | Rules that trigger warnings | `[]` |
+| `warningMessages()` | Custom warning messages | `[]` |
+| `warningAttributes()` | Custom field display names (`:attribute` substitution) | `[]` |
 
 ### Manual Usage
 
@@ -186,7 +206,8 @@ $response->assertOk();
 $response->assertHasWarning('name');
 $response->assertHasWarning('name', 'Short names may cause display issues.');
 $response->assertHasNoWarnings('email');
-$response->assertHasNoWarnings(); // no warnings at all
+$response->assertHasNoWarnings();                                           // no warnings at all
+$response->assertWarnings(['name' => ['Short names may cause display issues.']]);  // exact shape
 ```
 
 ## Configuration
@@ -214,6 +235,10 @@ return [
 | Blade variable | `$errors` | `$warnings` |
 | Session flash | Automatic | Via middleware |
 | API response | Standard Laravel | Header + JSON key |
+
+## Octane Compatibility
+
+`WarningBag` uses a scoped binding and is reset between requests automatically by Laravel Octane. No extra configuration needed.
 
 ## Changelog
 

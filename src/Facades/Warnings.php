@@ -8,7 +8,7 @@ use Fridzema\ValidationPlus\WarningBag;
 use Illuminate\Support\Facades\Facade;
 
 /**
- * @see \Fridzema\ValidationPlus\WarningBag
+ * @see WarningBag
  */
 final class Warnings extends Facade
 {

@@ -86,6 +86,26 @@ it('reads warnings from header on 204 responses', function (): void {
     $response->assertHasWarning('name', 'Name too short for display.');
 });
 
+it('can assert exact warnings bag shape', function (): void {
+    $response = $this->postJson('/test-macros', [
+        'email' => 'test@test.com',
+        'name' => 'Jo',
+    ]);
+
+    $response->assertOk();
+    $response->assertWarnings(['name' => ['Name too short for display.']]);
+});
+
+it('can assert empty warnings bag via assertWarnings', function (): void {
+    $response = $this->postJson('/test-macros', [
+        'email' => 'test@test.com',
+        'name' => 'Jonathan',
+    ]);
+
+    $response->assertOk();
+    $response->assertWarnings([]);
+});
+
 it('reads warnings from header on scalar json body', function (): void {
     Route::middleware([ShareWarnings::class])
         ->post('/test-macros-scalar', function (MacroTestFormRequest $request) {

@@ -249,6 +249,36 @@ it('merges with existing warnings key instead of overwriting', function (): void
     expect($data['warnings']['name'])->toContain('Name is short.');
 });
 
+it('uses custom header name from config', function (): void {
+    config()->set('validation-plus.header', 'X-Custom-Warnings');
+
+    app(WarningBag::class)->merge(['field' => ['Warning.']]);
+
+    $request = Request::create('/test', 'GET');
+    $request->headers->set('Accept', 'application/json');
+
+    $middleware = new ShareWarnings;
+    $response = $middleware->handle($request, fn () => new JsonResponse(['data' => 'ok']));
+
+    expect($response->headers->has('X-Custom-Warnings'))->toBeTrue();
+    expect($response->headers->has('X-Validation-Warnings'))->toBeFalse();
+});
+
+it('uses custom session key from config', function (): void {
+    config()->set('validation-plus.session_key', 'my_warnings');
+
+    app(WarningBag::class)->merge(['field' => ['Warning.']]);
+
+    $request = Request::create('/test', 'GET');
+    $request->setLaravelSession(app('session.store'));
+
+    $middleware = new ShareWarnings;
+    $middleware->handle($request, fn () => new Response('OK'));
+
+    expect($request->session()->has('my_warnings'))->toBeTrue();
+    expect($request->session()->has('warnings'))->toBeFalse();
+});
+
 it('resolves a fresh WarningBag after scoped instances are forgotten (Octane safety)', function (): void {
     $bag = app(WarningBag::class);
     $bag->merge(['email' => ['Stale warning from previous request.']]);

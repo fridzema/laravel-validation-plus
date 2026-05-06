@@ -13,6 +13,7 @@ function createFormRequest(
     array $rules = [],
     array $warningRules = [],
     array $warningMessages = [],
+    array $warningAttributes = [],
 ): FormRequest {
     $requestClass = new class extends FormRequest
     {
@@ -23,6 +24,8 @@ function createFormRequest(
         public static array $testWarningRules = [];
 
         public static array $testWarningMessages = [];
+
+        public static array $testWarningAttributes = [];
 
         public function rules(): array
         {
@@ -39,6 +42,11 @@ function createFormRequest(
             return self::$testWarningMessages;
         }
 
+        public function warningAttributes(): array
+        {
+            return self::$testWarningAttributes;
+        }
+
         public function authorize(): bool
         {
             return true;
@@ -48,6 +56,7 @@ function createFormRequest(
     $requestClass::$testRules = $rules;
     $requestClass::$testWarningRules = $warningRules;
     $requestClass::$testWarningMessages = $warningMessages;
+    $requestClass::$testWarningAttributes = $warningAttributes;
 
     $request = $requestClass::create('/', 'POST', $data);
     $request->setContainer(app());

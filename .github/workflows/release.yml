@@ -1,9 +1,10 @@
 name: Release
 
 on:
-  push:
-    branches:
-      - main
+  workflow_run:
+    workflows: ["CI"]
+    branches: [main]
+    types: [completed]
 
 permissions:
   contents: write
@@ -11,7 +12,7 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
-    if: "!contains(github.event.head_commit.message, '[skip ci]')"
+    if: github.event.workflow_run.conclusion == 'success'
 
     steps:
       - name: Checkout code
@@ -53,7 +54,6 @@ jobs:
             echo ""
             echo "${CHANGELOG_BODY}"
             echo ""
-            # Append previous entries (skip the header lines from old file)
             if [ -f CHANGELOG.md ]; then
               tail -n +4 CHANGELOG.md
             fi

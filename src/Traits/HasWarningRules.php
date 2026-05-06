@@ -27,14 +27,19 @@ trait HasWarningRules
     }
 
     /**
-     * @return \Illuminate\Contracts\Validation\Validator
+     * @return array<string, string>
      */
-    protected function getValidatorInstance()
+    public function warningAttributes(): array
+    {
+        return [];
+    }
+
+    protected function getValidatorInstance(): Validator
     {
         $validator = parent::getValidatorInstance();
 
         $validator->after(function (Validator $validator): void {
-            if ($validator->messages()->isNotEmpty()) {
+            if ($validator->errors()->isNotEmpty()) {
                 return;
             }
 
@@ -44,7 +49,7 @@ trait HasWarningRules
         return $validator;
     }
 
-    private function evaluateWarningRules(): void
+    protected function evaluateWarningRules(): void
     {
         $warningRules = $this->warningRules();
 
@@ -67,6 +72,7 @@ trait HasWarningRules
             $this->validationData(),
             $warningRules,
             $this->warningMessages(),
+            $this->warningAttributes(),
         );
 
         app(WarningBag::class)->merge($warningBag->getMessages());
