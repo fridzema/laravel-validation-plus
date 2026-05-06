@@ -2,6 +2,18 @@
 
 All notable changes to `laravel-validation-plus` will be documented in this file.
 
+## 1.1.0 - 2026-05-06
+
+## [1.1.0](https://github.com/fridzema/laravel-validation-plus/compare/v1.0.2...v1.1.0) (2026-05-06)
+
+
+### Features
+
+* harden package for public release ([1622deb](https://github.com/fridzema/laravel-validation-plus/commit/1622deb8729919d8f6982dae66ea0f3801451a12))
+
+
+
+
 ## 1.0.2 - 2026-03-03
 
 ### [1.0.2](https://github.com/fridzema/laravel-validation-plus/compare/v1.0.1...v1.0.2) (2026-03-03)
