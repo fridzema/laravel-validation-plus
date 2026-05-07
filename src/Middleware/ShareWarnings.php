@@ -24,7 +24,7 @@ final class ShareWarnings
             return $response;
         }
 
-        if ($request->hasSession()) {
+        if ($request->hasSession() && ! $warnings->wasResolvedFromSession()) {
             /** @var string $sessionKey */
             $sessionKey = config('validation-plus.session_key', 'warnings');
             $request->session()->flash($sessionKey, $warnings);

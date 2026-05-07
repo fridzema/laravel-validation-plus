@@ -296,6 +296,54 @@ it('uses custom session key from config', function (): void {
     expect($request->session()->has('warnings'))->toBeFalse();
 });
 
+it('hydrates warning bag from session flash on next request', function (): void {
+    $session = app('session.store');
+    $sessionKey = config('validation-plus.session_key', 'warnings');
+
+    $flashedBag = new WarningBag;
+    $flashedBag->merge(['name' => ['Name warning from previous request.']]);
+    $session->flash($sessionKey, $flashedBag);
+
+    // Simulate new request: scoped instances are forgotten
+    app()->forgetScopedInstances();
+
+    $request = Request::create('/test', 'GET');
+    $request->setLaravelSession($session);
+    app()->instance('request', $request);
+
+    $bag = app(WarningBag::class);
+
+    expect($bag->has('name'))->toBeTrue();
+    expect($bag->wasResolvedFromSession())->toBeTrue();
+});
+
+it('does not re-flash session-hydrated warnings to prevent redirect loops', function (): void {
+    $session = app('session.store');
+    $sessionKey = config('validation-plus.session_key', 'warnings');
+
+    $flashedBag = new WarningBag;
+    $flashedBag->merge(['name' => ['Warning.']]);
+    $session->flash($sessionKey, $flashedBag);
+
+    app()->forgetScopedInstances();
+
+    $request = Request::create('/test', 'GET');
+    $request->setLaravelSession($session);
+    app()->instance('request', $request);
+
+    // Resolve hydrated bag then run middleware
+    app(WarningBag::class);
+
+    $flashedBefore = $session->get('_flash.new', []);
+
+    $middleware = new ShareWarnings;
+    $middleware->handle($request, fn () => new Response('OK'));
+
+    // Middleware must not have added the session key to _flash.new again
+    $flashedAfter = $session->get('_flash.new', []);
+    expect($flashedAfter)->toBe($flashedBefore);
+});
+
 it('resolves a fresh WarningBag after scoped instances are forgotten (Octane safety)', function (): void {
     $bag = app(WarningBag::class);
     $bag->merge(['email' => ['Stale warning from previous request.']]);

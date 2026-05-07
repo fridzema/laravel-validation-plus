@@ -66,3 +66,23 @@ it('addGlobal is chainable', function (): void {
 
     expect($bag->get('__global__'))->toHaveCount(2);
 });
+
+it('is not marked as resolved from session by default', function (): void {
+    $bag = new WarningBag;
+
+    expect($bag->wasResolvedFromSession())->toBeFalse();
+});
+
+it('can be marked as resolved from session', function (): void {
+    $bag = new WarningBag;
+    $bag->markResolvedFromSession();
+
+    expect($bag->wasResolvedFromSession())->toBeTrue();
+});
+
+it('markResolvedFromSession is chainable', function (): void {
+    $bag = (new WarningBag)->markResolvedFromSession();
+
+    expect($bag)->toBeInstanceOf(WarningBag::class);
+    expect($bag->wasResolvedFromSession())->toBeTrue();
+});

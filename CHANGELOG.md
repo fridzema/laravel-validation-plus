@@ -2,6 +2,18 @@
 
 All notable changes to `laravel-validation-plus` will be documented in this file.
 
+## 1.3.4 - 2026-05-07
+
+### [1.3.4](https://github.com/fridzema/laravel-validation-plus/compare/v1.3.3...v1.3.4) (2026-05-07)
+
+
+### Bug Fixes
+
+* hydrate `WarningBag` from session flash on next request so web warnings render after redirect-after-POST ([#fix1](https://github.com/fridzema/laravel-validation-plus/commit/main))
+* prevent `ShareWarnings` from re-flashing session-hydrated warnings, which would cause them to persist indefinitely
+* resolve `warningRules()`, `warningMessages()`, and `warningAttributes()` via the container to support dependency injection, matching `FormRequest::rules()` behaviour
+
+
 ## 1.3.3 - 2026-05-06
 
 ### [1.3.3](https://github.com/fridzema/laravel-validation-plus/compare/v1.3.2...v1.3.3) (2026-05-06)

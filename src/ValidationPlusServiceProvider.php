@@ -25,7 +25,22 @@ final class ValidationPlusServiceProvider extends PackageServiceProvider
 
     public function packageRegistered(): void
     {
-        $this->app->scoped(WarningBag::class, fn (): WarningBag => new WarningBag);
+        $this->app->scoped(WarningBag::class, function (): WarningBag {
+            $bag = new WarningBag;
+
+            $request = $this->app->make('request');
+            if ($request->hasSession()) {
+                /** @var string $sessionKey */
+                $sessionKey = config('validation-plus.session_key', 'warnings');
+                $flashed = $request->session()->get($sessionKey);
+                if ($flashed instanceof WarningBag) {
+                    $bag->merge($flashed->getMessages());
+                    $bag->markResolvedFromSession();
+                }
+            }
+
+            return $bag;
+        });
 
         $this->app->singleton(WarningValidator::class, fn (): WarningValidator => new WarningValidator);
     }

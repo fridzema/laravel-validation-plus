@@ -51,7 +51,8 @@ trait HasWarningRules
 
     protected function evaluateWarningRules(): void
     {
-        $warningRules = $this->warningRules();
+        /** @var array<string, mixed> $warningRules */
+        $warningRules = app()->call([$this, 'warningRules']);
 
         if ($warningRules === []) {
             return;
@@ -68,11 +69,16 @@ trait HasWarningRules
         /** @var WarningValidator $warningValidator */
         $warningValidator = app(WarningValidator::class);
 
+        /** @var array<string, string> $warningMessages */
+        $warningMessages = app()->call([$this, 'warningMessages']);
+        /** @var array<string, string> $warningAttributes */
+        $warningAttributes = app()->call([$this, 'warningAttributes']);
+
         $warningBag = $warningValidator->validate(
             $this->validationData(),
             $warningRules,
-            $this->warningMessages(),
-            $this->warningAttributes(),
+            $warningMessages,
+            $warningAttributes,
         );
 
         app(WarningBag::class)->merge($warningBag->getMessages());

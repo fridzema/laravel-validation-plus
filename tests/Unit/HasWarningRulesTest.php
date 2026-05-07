@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Fridzema\ValidationPlus\Traits\HasWarningRules;
 use Fridzema\ValidationPlus\WarningBag;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Factory;
 
 it('has default empty warning rules', function (): void {
     $request = new class extends FormRequest
@@ -99,6 +100,35 @@ it('supports custom warning attribute names via warningAttributes()', function (
 
     $warningBag = app(WarningBag::class);
     expect($warningBag->first('user_name'))->toContain('display name');
+});
+
+it('resolves warningRules via container to support dependency injection', function (): void {
+    $request = new class extends FormRequest
+    {
+        use HasWarningRules;
+
+        public function authorize(): bool
+        {
+            return true;
+        }
+
+        public function rules(): array
+        {
+            return ['email' => 'required|email'];
+        }
+
+        public function warningRules(Factory $factory): array
+        {
+            // $factory injected by container — direct call without container would throw ArgumentCountError
+            return ['email' => 'in:unique@test.com'];
+        }
+    };
+
+    $request = $request::create('/', 'POST', ['email' => 'other@test.com']);
+    $request->setContainer(app());
+    $request->validateResolved();
+
+    expect(app(WarningBag::class)->has('email'))->toBeTrue();
 });
 
 it('supports dot-notation nested field warning rules', function (): void {
